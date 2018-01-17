@@ -24,6 +24,7 @@
     iframe{width: 96%; height: 700px; border: none; background-color: #fefefe}
     .footer{ text-align: center;}
     .footer a {font-size: 16px; color: #999; line-height: 100px;}
+    .ext_srt{color: #999;}
   </style>
 </head>
 <body>
@@ -36,7 +37,8 @@
           <form method="post" target="main"  enctype="multipart/form-data" action="/covert">
             Select LRC File:<input type="file" name="file"><br><br>
             Or Input LRC File Content:<textarea name="lrc_data" placeholder="lrc data..."></textarea><br><br>
-            Show Or Download:<select name="type"><option value="0">show</option><option value="1">download</option></select>
+            Show Or Download:<select name="type"><option value="0">show</option><option value="1">download</option></select>&nbsp;&nbsp;&nbsp;
+            Download File Name:<input type="filename" name="filename"><span class="ext_srt">.srt</span>
             <input type="submit" value="Convert">
           </form>
         </div>

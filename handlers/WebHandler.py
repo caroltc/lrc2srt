@@ -11,14 +11,15 @@ class MainHandler(BaseHandler.BaseHandler):
 
 class CovertHandler(BaseHandler.BaseHandler):
     def post(self):
+        filename = self.get_argument('filename', '')
         show_type = self.get_argument('type', '0')
         file_metas = self.request.files.get('file', None)
-        filename = 'temp.srt'
+        filename = filename.replace(' ', '')+'.srt' if filename != "" else ""
         if not file_metas:
             file_contents = self.get_argument('lrc_data', None)
         else:
             file_contents = file_metas[0]['body']
-            filename = file_metas[0]['filename'].replace('.lrc', '') + '.srt'
+            filename = file_metas[0]['filename'].replace('.lrc', '') + '.srt' if filename == "" else filename
         if not file_contents:
             self.write('convert failed! check you data!')
             return None
@@ -42,6 +43,7 @@ class CovertHandler(BaseHandler.BaseHandler):
             self.write("<pre contenteditable='true'>"+srt_data+"</pre>")
             return None
         else:
+            filename = 'temp.srt' if filename == "" else filename
             self.set_header ('Content-Type', 'application/octet-stream')
             self.set_header ('Content-Disposition', 'attachment; filename='+filename)
             self.write(srt_data)
