@@ -39,7 +39,7 @@ class CovertHandler(BaseHandler.BaseHandler):
             next_time = srt_lines[n]['time'] if n < len(srt_lines) else "99:00:00,000"
             srt_data += str(n)+"\n" + srt_lines[i]['time'] + " --> " + next_time + "\n" + srt_lines[i]['data'] + "\n\n"
         if show_type == '0':
-            self.write("<pre>"+srt_data+"</pre>")
+            self.write("<pre contenteditable='true'>"+srt_data+"</pre>")
             return None
         else:
             self.set_header ('Content-Type', 'application/octet-stream')
