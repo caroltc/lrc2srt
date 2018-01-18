@@ -14,7 +14,7 @@ class CovertHandler(BaseHandler.BaseHandler):
         filename = self.get_argument('filename', '')
         show_type = self.get_argument('type', '0')
         file_metas = self.request.files.get('file', None)
-        filename = filename.replace(' ', '')+'.srt' if filename != "" else ""
+        filename = '.srt' if filename != "" else ""
         if not file_metas:
             file_contents = self.get_argument('lrc_data', None)
         else:
@@ -43,7 +43,7 @@ class CovertHandler(BaseHandler.BaseHandler):
             self.write("<pre contenteditable='true'>"+srt_data+"</pre>")
             return None
         else:
-            filename = 'temp.srt' if filename == "" else filename
+            filename = 'temp.srt' if filename == "" else filename.replace(' ', '-')
             self.set_header ('Content-Type', 'application/octet-stream')
             self.set_header ('Content-Disposition', 'attachment; filename='+filename)
             self.write(srt_data)
