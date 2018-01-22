@@ -14,7 +14,7 @@ class CovertHandler(BaseHandler.BaseHandler):
         filename = self.get_argument('filename', '')
         show_type = self.get_argument('type', '0')
         file_metas = self.request.files.get('file', None)
-        filename = '.srt' if filename != "" else ""
+        filename = filename+'.srt' if filename != "" else ""
         if not file_metas:
             file_contents = self.get_argument('lrc_data', None)
         else:
