@@ -43,11 +43,11 @@ class CovertHandler(BaseHandler.BaseHandler):
         srt_lines = []
         srt_data = ""
         for item in lines:
-            data_pattern = re.compile(r'\[(\d\d)\:(\d\d)\.?(\d\d)?\]([^\[^\].]+)')
+            data_pattern = re.compile(r'\[(\d\d)\:(\d\d)\.?(\d\d)?\]([^\[^\]]*)')
             re_datas = data_pattern.findall(item)
             lrc_item_data = None
             if len(re_datas) > 0:
-                lrc_item_data = re_datas[0][3]
+                lrc_item_data = re_datas[len(re_datas)-1][3]
             time_pattern = re.compile(r'\[(\d\d)\:(\d\d)\.?(\d\d)?\]{1,10}')
             time_datas = time_pattern.findall(item)
             if lrc_item_data and len(time_datas) > 0:
