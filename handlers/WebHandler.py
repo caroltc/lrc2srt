@@ -23,6 +23,19 @@ class CovertHandler(BaseHandler.BaseHandler):
         if not file_contents:
             self.write('convert failed! check you data!')
             return None
+        lrc_ti_pattern = re.compile(r'\[ti:(.*)\]')
+        lrc_ti_datas = lrc_ti_pattern.findall(file_contents)
+        lrc_ti = 'temp'
+        if len(lrc_ti_datas) > 0:
+            lrc_ti = lrc_ti_datas[0]
+        break_pattern = re.compile(r'[^\].]\[')
+        data_breaks = break_pattern.findall(file_contents)
+        # print data_breaks
+        if len(data_breaks) > 0:
+            for break_tag in data_breaks:
+                if break_tag != "\n[":
+                    new_break_tag = break_tag.replace('[', "\n[")
+                    file_contents = file_contents.replace(break_tag, new_break_tag)
         lines = file_contents.split("\n")
         if len(lines) < 2:
             self.write('convert failed! no data!')
@@ -30,11 +43,19 @@ class CovertHandler(BaseHandler.BaseHandler):
         srt_lines = []
         srt_data = ""
         for item in lines:
-            pattern = re.compile(r'\[(\d\d)\:(\d\d)\.(\d\d)\]([^\[^\].]+)')
-            re_datas = pattern.findall(item)
+            data_pattern = re.compile(r'\[(\d\d)\:(\d\d)\.?(\d\d)?\]([^\[^\].]+)')
+            re_datas = data_pattern.findall(item)
+            lrc_item_data = None
             if len(re_datas) > 0:
-                for lrc_data in re_datas:
-                    srt_lines.append({"time":"00:"+lrc_data[0]+":"+lrc_data[1]+","+lrc_data[2]+"0", "data":lrc_data[3].strip()})
+                lrc_item_data = re_datas[0][3]
+            time_pattern = re.compile(r'\[(\d\d)\:(\d\d)\.?(\d\d)?\]{1,10}')
+            time_datas = time_pattern.findall(item)
+            if lrc_item_data and len(time_datas) > 0:
+                for time_data in time_datas:
+                    mtime = '0' if time_data[2] == '' else time_data[2]
+                    time_index = int(time_data[0].zfill(2)+time_data[1].zfill(2)+mtime.zfill(3))
+                    srt_lines.append({"time":"00:"+time_data[0]+":"+time_data[1]+","+mtime+"0", "data":lrc_item_data.strip(), "time_index":time_index})
+            srt_lines = sorted(srt_lines, key=lambda lrcline: lrcline["time_index"])
         for i in range(len(srt_lines)):
             n = i+1
             next_time = srt_lines[n]['time'] if n < len(srt_lines) else "99:00:00,000"
@@ -43,7 +64,7 @@ class CovertHandler(BaseHandler.BaseHandler):
             self.write("<pre contenteditable='true'>"+srt_data+"</pre>")
             return None
         else:
-            filename = 'temp.srt' if filename == "" else filename.replace(' ', '-')
+            filename = lrc_ti+'.srt' if filename == "" else filename.replace(' ', '-')
             self.set_header ('Content-Type', 'application/octet-stream')
             self.set_header ('Content-Disposition', 'attachment; filename='+filename)
             self.write(srt_data)
