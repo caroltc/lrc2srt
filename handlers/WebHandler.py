@@ -27,7 +27,7 @@ class CovertHandler(BaseHandler.BaseHandler):
         lrc_ti_datas = lrc_ti_pattern.findall(file_contents)
         lrc_ti = 'temp'
         if len(lrc_ti_datas) > 0:
-            lrc_ti = lrc_ti_datas[0]
+            lrc_ti = lrc_ti_datas[0].replace(' ', '')
         break_pattern = re.compile(r'[^\].]\[')
         data_breaks = break_pattern.findall(file_contents)
         # print data_breaks
@@ -43,18 +43,21 @@ class CovertHandler(BaseHandler.BaseHandler):
         srt_lines = []
         srt_data = ""
         for item in lines:
-            data_pattern = re.compile(r'\[(\d\d)\:(\d\d)\.?(\d\d)?\]([^\[^\]]*)')
+            data_pattern = re.compile(r'\[(\d\d)\:(\d\d)\.?(\d{1,3})?\]([^\[^\]]*)')
             re_datas = data_pattern.findall(item)
+            # print re_datas
             lrc_item_data = None
             if len(re_datas) > 0:
                 lrc_item_data = re_datas[len(re_datas)-1][3]
-            time_pattern = re.compile(r'\[(\d\d)\:(\d\d)\.?(\d\d)?\]{1,10}')
+            time_pattern = re.compile(r'\[(\d\d)\:(\d\d)\.?(\d{1,3})?\]{1,10}')
             time_datas = time_pattern.findall(item)
             if lrc_item_data and len(time_datas) > 0:
                 for time_data in time_datas:
-                    mtime = '0' if time_data[2] == '' else time_data[2]
+                    mtime = '00' if time_data[2] == '' else time_data[2]
+                    mtime = mtime+'00' if len(mtime) == 1 else mtime
+                    mtime = mtime+'0' if len(mtime) == 2 else mtime
                     time_index = int(time_data[0].zfill(2)+time_data[1].zfill(2)+mtime.zfill(3))
-                    srt_lines.append({"time":"00:"+time_data[0]+":"+time_data[1]+","+mtime+"0", "data":lrc_item_data.strip(), "time_index":time_index})
+                    srt_lines.append({"time":"00:"+time_data[0]+":"+time_data[1]+","+mtime, "data":lrc_item_data.strip(), "time_index":time_index})
             srt_lines = sorted(srt_lines, key=lambda lrcline: lrcline["time_index"])
         for i in range(len(srt_lines)):
             n = i+1
